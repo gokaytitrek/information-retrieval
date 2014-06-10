@@ -44,7 +44,22 @@ public class NaiveBayes extends Retrieval {
 						fileClassHolder.put(fileCounter,name);
 			    	    fileNameHolder.put(fileCounter,sub.getName());
 			    	    fileCounter++;
-						
+			    	    
+			    	    BufferedReader br = new BufferedReader(new FileReader(subFolder+"/"+sub.getName()));
+			    	    try
+			    	    {
+				    	    String line = br.readLine();
+				    	    while (line != null) {
+			    	            String [] Terms = line.split(" ");
+			    	            for (String Term : Terms) {
+			    	            	String tempTerm = processWord(Term.trim());
+									distinctTerms.add(tempTerm);
+								}
+			    	            line = br.readLine();
+			    	        }
+			    	    } finally {
+			    	        br.close();
+			    	    }	 
 				    }
 		        }
 		    }
@@ -149,7 +164,7 @@ public class NaiveBayes extends Retrieval {
 	private static double applyMultinomialNB(String c,double priorProbability)
 	{
 		double result=0;//1 * priorProbability;
-		int smoothCount = distinctTestFileTerms.size()*distinctClass.size();//Olasýlýk hesabýnda bolum olarak eklenecek kýsým. Pay'a eklenen +1den dolayý
+		int smoothCount = distinctTerms.size();//distinctTestFileTerms.size()*distinctClass.size();//Olasýlýk hesabýnda bolum olarak eklenecek kýsým. Pay'a eklenen +1den dolayý
 		HashMap<String, Integer> termFrequency = classTermFrequency.get(c);
 		int totalCountOfTerms = 0;
 		for (Entry<String, Integer> i : termFrequency.entrySet()) {

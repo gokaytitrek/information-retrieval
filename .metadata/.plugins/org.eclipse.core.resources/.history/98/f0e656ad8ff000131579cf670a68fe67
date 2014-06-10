@@ -1,0 +1,129 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
+
+import javax.swing.text.html.parser.Entity;
+
+
+public class Rocchio extends PositionalPostingList {
+
+	private static String FolderPath;
+	public static HashSet<String> distinctClass=new HashSet<String>();
+	public static HashMap<Integer, String> fileClassHolder = new HashMap<Integer, String>();
+	public static HashMap<String,  HashMap<Integer,  Double>> rocchio = new HashMap<String, HashMap<Integer,  Double>>();
+	
+	
+	public static void main(String[] args) throws IOException {
+		int fileCounter = 0;
+		FolderPath = (new File(".").getAbsolutePath())+"/Classifier";
+		File file = new File(FolderPath);
+		String[] names = file.list();
+
+		for(String name : names)
+		{
+			String subFolder = FolderPath + "\\"+ name;
+		    if (new File(subFolder).isDirectory())
+		    {
+		    	distinctClass.add(name);
+		        File subFile = new File(subFolder);
+		        File[] subFileNames = subFile.listFiles();
+		        for (File sub : subFileNames) {
+				    if (sub.isFile()) {
+				    	
+						fileClassHolder.put(fileCounter,name);
+			    	    fileNameHolder.put(fileCounter,sub.getName());
+			    	    
+			    	    
+			    	    BufferedReader br = new BufferedReader(new FileReader(subFolder+"/"+sub.getName()));
+			    	    try
+			    	    {
+			    	    	int tokenCounter=0;
+			    	    	String line = br.readLine();
+			    	        while (line != null) {
+			    	            String [] Terms = processWord(line).split(" ");
+			    	            for (String Term : Terms) {
+			    	            	if(!Term.equals(""))
+			    	            	{
+			    	            		distinctTerms.add(Term.trim());
+			    	            		addPositionalPostingList(Term.trim(), fileCounter,tokenCounter);
+			    	            		tokenCounter++;
+			    	            	}
+								}
+			    	            line = br.readLine();
+			    	        }
+			    	    } finally {
+			    	        br.close();
+			    	        fileCounter++;
+			    	    }	 
+				    }
+		        }
+		    }
+		}
+		
+		calculateTrainDataTfIdf();
+
+	}
+	
+	private static double calculateTf(int termFrequency,String smart) {
+		double result=0;
+		switch (smart) {
+		case "n":
+			result = termFrequency;
+			break;
+		case "l":
+			if(termFrequency != 0)
+				result = 1 + Math.log10(termFrequency);
+			else
+				result = 0;
+			break;
+		}
+		return result;
+		
+	}
+	
+	private static double calculateIdf(double documentFrequency,String smart) {
+		double result=0;
+		documentTotalSize = fileNameHolder.size();
+		switch (smart) {
+		case "n":
+			result = 1;
+			break;
+		case "t":
+			result = Math.log10(documentTotalSize/documentFrequency);
+		}
+		return result;
+	}
+	
+	private static void calculateTrainDataTfIdf()
+	{
+		for(Entry<String, HashMap<Integer, ArrayList<Integer>>> value:positionalPostingList.entrySet())
+		{
+			Double TfIdf = new Double(0);
+			//her string icin tfidf hesapla
+			HashMap<Integer,  ArrayList<Integer>> tempHashMap = positionalPostingList.get(value.getKey());
+			for(Entry<Integer, String> fileValue: fileNameHolder.entrySet())
+			{
+				HashMap<Integer,  Double> temp=new HashMap<Integer,  Double>();
+				
+				int size= 0;
+				if(tempHashMap.get(fileValue.getKey())!=null)	
+					size = tempHashMap.get(fileValue.getKey()).size();
+				int documentSize=tempHashMap.size();
+				temp.put(fileValue.getKey(),(calculateTf(size,"l") * calculateIdf(documentSize,"t")));
+				if(rocchio.get(value.getKey())!=null)
+					rocchio.get(value.getKey()).put(fileValue.getKey(),(calculateTf(size,"l") * calculateIdf(documentSize,"t")));
+				else
+					rocchio.put(value.getKey(), temp);
+			}
+			
+		}
+		
+	}
+
+}

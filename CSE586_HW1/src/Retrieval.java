@@ -221,7 +221,7 @@ public class Retrieval {
     	}
 	}
 	
-	private static void addPositionalPostingList(String term,Integer fileCounter,Integer tokenCounter) {
+	protected static void addPositionalPostingList(String term,Integer fileCounter,Integer tokenCounter) {
 		HashMap<Integer, ArrayList<Integer>> checkAvaible=positionalPostingList.get(term);
 		int count=0;
 		if(checkAvaible!=null && !term.equals(""))
