@@ -3,3 +3,19 @@ CSE586_HW1/IndexFolder/
 CSE586_HW1/Classifier/
 CSE586_HW1/_TextFolder/
 CSE586_HW1/__TextFolder/
+
+# Created by http://www.gitignore.io
+
+### Java ###
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
